@@ -1,0 +1,9 @@
+project Gpio is
+
+   for Source_Dirs use ("./**");
+   for Object_Dir use ".obj";
+   for Library_Name use "gpio";
+   for Languages use ("Ada", "C");
+
+end Gpio;
+
