@@ -1,5 +1,5 @@
 
-package body Sensors.Input.IR is
+package body Sensors.Digital.Input.IR is
 
    -------------
    -- Is_High --
@@ -22,4 +22,4 @@ package body Sensors.Input.IR is
       end return;
    end Create;
 
-end Sensors.Input.IR;
+end Sensors.Digital.Input.IR;

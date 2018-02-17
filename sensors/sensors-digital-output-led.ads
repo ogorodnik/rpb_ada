@@ -2,11 +2,9 @@
 --  Tested with
 --    Digital (Green) LED Light Module SKU:DFR0021-G
 
-with GPIO;
+package Sensors.Digital.Output.Led is
 
-package Sensors.Output.Led is
-
-   type Led is tagged private;
+   type Led is new Output_Sensor with private;
 
    procedure On  (Self : in out Led);
    procedure Off (Self : in out Led);
@@ -15,8 +13,6 @@ package Sensors.Output.Led is
 
 private
 
-   type Led is tagged record
-      Pin : GPIO.Output_Pin;
-   end record;
+   type Led is new Output_Sensor with null record;
 
-end Sensors.Output.Led;
+end Sensors.Digital.Output.Led;

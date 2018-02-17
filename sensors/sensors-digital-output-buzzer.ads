@@ -2,9 +2,7 @@
 -- Tested with:
 --    Digital Buzzer For Arduino SKU:DFR0032
 
-with GPIO;
-
-package Sensors.Output.Buzzer is
+package Sensors.Digital.Output.Buzzer is
 
    type Buzzer is new Output_Sensor with private;
 
@@ -17,4 +15,4 @@ private
 
    type Buzzer is new Output_Sensor with null record;
 
-end Sensors.Output.Buzzer;
+end Sensors.Digital.Output.Buzzer;

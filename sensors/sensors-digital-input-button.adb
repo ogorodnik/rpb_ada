@@ -1,5 +1,5 @@
 
-package body Sensors.Input.Button is
+package body Sensors.Digital.Input.Button is
 
    ----------------
    -- Is_Pressed --
@@ -22,4 +22,4 @@ package body Sensors.Input.Button is
       end return;
    end Create;
 
-end Sensors.Input.Button;
+end Sensors.Digital.Input.Button;

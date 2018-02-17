@@ -1,5 +1,5 @@
 
-package body Sensors.Output is
+package body Sensors.Digital.Output is
 
    --------
    -- Id --
@@ -9,6 +9,7 @@ package body Sensors.Output is
    begin
       return Output_Sensor_Node_Access (Self.Node).Pin.Id;
    end Id;
+
 
    ----------
    -- High --
@@ -28,4 +29,4 @@ package body Sensors.Output is
       Output_Sensor_Node_Access (Self.Node).Pin.Low;
    end low;
 
-end Sensors.Output;
+end Sensors.Digital.Output;

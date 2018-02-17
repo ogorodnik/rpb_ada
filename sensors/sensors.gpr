@@ -1,4 +1,5 @@
 with "../gpio/gpio.gpr";
+with "../shields/shields.gpr";
 
 project Sensors is
 

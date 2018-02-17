@@ -1,9 +1,9 @@
 
-package Sensors.Input is
+package Sensors.Digital.Input is
 
-   type Input_Sensor is abstract new Sensor with private;
+   type Input_Sensor is abstract new Digital_Sensor with private;
 
-   function Id (self : Input_Sensor) return GPIO.GPIO_Number;
+   function Id (Self : Input_Sensor) return GPIO.GPIO_Number;
 
 private
 
@@ -12,9 +12,9 @@ private
    end record;
    type Input_Sensor_Node_Access is access all Input_Sensor_Node;
 
-   type Input_Sensor is abstract new Sensor with null record;
+   type Input_Sensor is abstract new Digital_Sensor with null record;
 
    function Is_High (self : Input_Sensor) return Boolean;
    function Is_Low (self : Input_Sensor) return Boolean;
 
-end Sensors.Input;
+end Sensors.Digital.Input;

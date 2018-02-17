@@ -1,7 +1,10 @@
 
---  For Raspberry Pi3 --
+-------------------------------------
+--  Raspberry Pi3 ( bcm2835 ) GPIO --
+-------------------------------------
 
 private with Ada.Finalization;
+private with System.Storage_Elements;
 
 package GPIO is
 
@@ -31,8 +34,17 @@ package GPIO is
 
    type Input_Pin is new Pin with private;
 
-   function Is_High (Self : Input_Pin) return Boolean;
-   function Is_Low  (Self : Input_Pin) return Boolean;
+   function Is_High  (Self : Input_Pin) return Boolean;
+   function Is_Low   (Self : Input_Pin) return Boolean;
+   function Wait_Low (Self : Input_Pin; Timaout : Duration) return Boolean;
+
+   type GPIO_Pin_Pull_Up_Down is (Off, Pull_Down, Pull_Up);
+   for GPIO_Pin_Pull_Up_Down use (Off => 0, Pull_Down => 1, Pull_Up => 2);
+   for GPIO_Pin_Pull_Up_Down'Size use 2;
+
+   procedure Set_Pull_Up_Down
+     (Self : Input_Pin;
+      Mode : GPIO_Pin_Pull_Up_Down);
 
    Empty_Input_Pin : constant Input_Pin;
 
@@ -43,6 +55,16 @@ package GPIO is
    --  if corresponding pin is already in use.
 
 private
+   use System, System.Storage_Elements;
+
+   Peripherals_Base_Address : constant Address := To_Address (16#3F00_0000#);
+
+   --  GPIO Mode type (FSEL) --
+
+   type GPIO_FSEL_Mode is (Input, Output, Alt_0);
+   for GPIO_FSEL_Mode use (Input => 0, Output => 1, Alt_0 => 2#100#);
+   for GPIO_FSEL_Mode'Size use 3;
+
    type Pin_Node (Number : GPIO_Number) is record
       Counter  : Natural     := 0;
       Is_High  : Boolean     := False;
@@ -57,6 +79,15 @@ private
    overriding procedure Adjust   (Self : in out Pin);
    overriding procedure Finalize (Self : in out Pin);
 
+   -- Input_Pin --
+
+   type Input_Pin is new Pin with null record;
+
+   Empty_Input_Pin : constant Input_Pin :=
+     Input_Pin'(Ada.Finalization.Controlled with Node => null);
+
+   -- Output_Pin --
+
    type Output_Pin is new Pin with null record;
 
    overriding procedure Finalize (Self : in out Output_Pin);
@@ -64,9 +95,18 @@ private
    Empty_Output_Pin : constant Output_Pin :=
      Output_Pin'(Ada.Finalization.Controlled with Node => null);
 
-   type Input_Pin is new Pin with null record;
+   -- Alternate_Pin --
 
-   Empty_Input_Pin : constant Input_Pin :=
-     Input_Pin'(Ada.Finalization.Controlled with Node => null);
+   type Alternate_Pin is new Pin with null record;
+
+   function Create
+     (Number : GPIO_Number;
+      Mode   : GPIO_FSEL_Mode)
+      return Alternate_Pin;
+   --  Initialize and return alternative pin. May raise Program_Error
+   --  if corresponding pin is already in use.
+
+   type Bit is range 0 .. 1;
+   for Bit'Size use 1;
 
 end GPIO;

@@ -1,10 +1,9 @@
 
 with Ada.Finalization;
-with GPIO;
 
 package Sensors is
 
-   type Sensor is abstract tagged private;
+   type Sensor is abstract new Ada.Finalization.Controlled with private;
 
 private
 

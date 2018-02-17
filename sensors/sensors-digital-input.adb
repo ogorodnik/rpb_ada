@@ -1,5 +1,5 @@
 
-package body Sensors.Input is
+package body Sensors.Digital.Input is
 
    --------
    -- Id --
@@ -28,4 +28,4 @@ package body Sensors.Input is
       return Input_Sensor_Node_Access (Self.Node).Pin.Is_Low;
    end Is_low;
 
-end Sensors.Input;
+end Sensors.Digital.Input;

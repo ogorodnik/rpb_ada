@@ -1,7 +1,5 @@
 
-with GPIO;
-
-package Sensors.Input.IR is
+package Sensors.Digital.Input.IR is
 
    type IR is new Input_Sensor with private;
 
@@ -13,4 +11,4 @@ private
 
    type IR is new Input_Sensor with null record;
 
-end Sensors.Input.IR;
+end Sensors.Digital.Input.IR;

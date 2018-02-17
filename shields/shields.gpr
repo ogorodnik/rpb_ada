@@ -1,0 +1,10 @@
+with "../gpio/gpio.gpr";
+
+project Shields is
+
+   for Source_Dirs use ("./**");
+   for Object_Dir use ".obj";
+   for Library_Name use "shields";
+
+end Shields;
+

@@ -2,7 +2,7 @@
 --  Tested with:
 --    DFRobot Digital Push Button SKU:DFR0029
 
-package Sensors.Input.Button is
+package Sensors.Digital.Input.Button is
 
    type Button is new Input_Sensor with private;
 
@@ -14,4 +14,4 @@ private
 
    type Button is new Input_Sensor with null record;
 
-end Sensors.Input.Button;
+end Sensors.Digital.Input.Button;

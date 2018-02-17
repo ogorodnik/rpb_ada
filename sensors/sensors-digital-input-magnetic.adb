@@ -1,5 +1,5 @@
 
-package body Sensors.Input.Magnetic is
+package body Sensors.Digital.Input.Magnetic is
 
    -----------------
    -- Is_Detected --
@@ -22,4 +22,4 @@ package body Sensors.Input.Magnetic is
       end return;
    end Create;
 
-end Sensors.Input.Magnetic;
+end Sensors.Digital.Input.Magnetic;

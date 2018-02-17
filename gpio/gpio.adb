@@ -1,15 +1,9 @@
 
+with Ada.Calendar;                use Ada.Calendar;
 with Ada.Unchecked_Deallocation;
-with System.Storage_Elements;     use System, System.Storage_Elements;
 with Interfaces.C;                use Interfaces.C;
 
 package body GPIO is
-
-   --  GPIO Mode type (FSEL) --
-
-   type GPIO_FSEL_Mode is (Input, Output);
-   for GPIO_FSEL_Mode use (Input => 0, Output => 1);
-   for GPIO_FSEL_Mode'Size use 3;
 
    -- GPFSEL register repreesentation type --
 
@@ -43,9 +37,11 @@ package body GPIO is
 
    -- GPFSELn addresses --
 
-   GPIO_Select_0_Address : constant Address := To_Address (16#3F20_0000#);
-   GPIO_Select_1_Address : constant Address := To_Address (16#3F20_0004#);
-   GPIO_Select_2_Address : constant Address := To_Address (16#3F20_0008#);
+   GPIO_Base_Address     : constant Address :=
+     Peripherals_Base_Address + 16#20_0000#;
+   GPIO_Select_0_Address : constant Address := GPIO_Base_Address;
+   GPIO_Select_1_Address : constant Address := GPIO_Base_Address + 16#4#;
+   GPIO_Select_2_Address : constant Address := GPIO_Base_Address + 16#8#;
 
    -- GPFSELn --
 
@@ -65,8 +61,8 @@ package body GPIO is
    pragma Volatile (GPIO_Set_Clear_Register_Type);
 
    -- GPSETn addresses --
-   GPIO_Output_Set_0_Address : constant Address := To_Address (16#3F20_001C#);
-   GPIO_Output_Set_1_Address : constant Address := To_Address (16#3F20_0020#);
+   GPIO_Output_Set_0_Address : constant Address := GPIO_Base_Address + 16#1C#;
+   GPIO_Output_Set_1_Address : constant Address := GPIO_Base_Address + 16#20#;
 
    -- GPSETn --
    GPIO_Output_Set_0 : GPIO_Set_Clear_Register_Type;
@@ -76,9 +72,9 @@ package body GPIO is
 
    -- GPCLRn addresses --
    GPIO_Output_Clear_0_Address : constant Address :=
-     To_Address (16#3F20_0028#);
+     GPIO_Base_Address + 16#28#;
    GPIO_Output_Clear_1_Address : constant Address :=
-     To_Address (16#3F20_002C#);
+     GPIO_Base_Address + 16#2C#;
 
    -- GPCLRn --
    GPIO_Output_Clear_0 : GPIO_Set_Clear_Register_Type;
@@ -94,8 +90,8 @@ package body GPIO is
    for GPIO_Level_Register_Type'Size use 32;
 
    -- GPLEVn addresses --
-   GPIO_Pin_Level_0_Address : constant Address := To_Address (16#3F20_0034#);
-   GPIO_Pin_Level_1_Address : constant Address := To_Address (16#3F20_0038#);
+   GPIO_Pin_Level_0_Address : constant Address := GPIO_Base_Address + 16#34#;
+   GPIO_Pin_Level_1_Address : constant Address := GPIO_Base_Address + 16#38#;
 
    -- GPLEVn --
    GPIO_Pin_Level_0 : GPIO_Level_Register_Type;
@@ -147,10 +143,73 @@ package body GPIO is
    type GPIO_Select_Register_Type_Access is
      access all GPIO_Select_Register_Type;
 
+   -- GPPUD --
+
+   GPIO_GPPUD_Address : constant Address := GPIO_Base_Address + 16#94#;
+
+   type GPIO_GPPUD_Unused is (Unused);
+   for GPIO_GPPUD_Unused use (Unused => 0);
+   for GPIO_GPPUD_Unused'Size use 30;
+
+   type GPIO_GPPUD_Register_Type is record
+      PUD    : GPIO_Pin_Pull_Up_Down;
+      UNUSED : GPIO_GPPUD_Unused;
+   end record;
+   for GPIO_GPPUD_Register_Type use record
+      PUD    at 0 range  0 .. 1;
+      UNUSED at 0 range  2 .. 31;
+   end record;
+   for GPIO_GPPUD_Register_Type'Size use 32;
+   pragma Volatile (GPIO_GPPUD_Register_Type);
+   pragma Atomic (GPIO_GPPUD_Register_Type);
+
+   GPIO_GPPUD : GPIO_GPPUD_Register_Type;
+   for GPIO_GPPUD'Address use GPIO_GPPUD_Address;
+
+   --  GPPUDCLKn --
+
+   GPIO_GPPUDCLK0_Address : constant Address := GPIO_Base_Address + 16#98#;
+   GPIO_GPPUDCLK1_Address : constant Address := GPIO_Base_Address + 16#9C#;
+
+   type GPIO_GPPUDCLK0_Register_Type is array (0 .. 31) of Boolean;
+   pragma Pack (GPIO_GPPUDCLK0_Register_Type);
+   pragma Volatile (GPIO_GPPUDCLK0_Register_Type);
+   for GPIO_GPPUDCLK0_Register_Type'Size use 32;
+
+   GPIO_GPPUDCLK0 : GPIO_GPPUDCLK0_Register_Type;
+   for GPIO_GPPUDCLK0'Address use GPIO_GPPUDCLK0_Address;
+
+   type GPIO_GPPUDCLK1_PUDCLK1 is array (32 .. 53) of Boolean;
+   pragma Pack (GPIO_GPPUDCLK1_PUDCLK1);
+   for GPIO_GPPUDCLK1_PUDCLK1'Size use 22;
+
+   type GPIO_GPPUDCLK1_Unused is (Unused);
+   for GPIO_GPPUDCLK1_Unused use (Unused => 0);
+   for GPIO_GPPUDCLK1_Unused'Size use 10;
+
+   type GPIO_GPPUDCLK1_Register_Type is record
+      PUDCLK1 : GPIO_GPPUDCLK1_PUDCLK1;
+      UNUSED  : GPIO_GPPUDCLK1_Unused;
+   end record;
+   for GPIO_GPPUDCLK1_Register_Type use record
+      PUDCLK1 at 0 range  0  .. 21;
+      UNUSED  at 0 range  22 .. 31;
+   end record;
+   for GPIO_GPPUDCLK1_Register_Type'Size use 32;
+   pragma Volatile (GPIO_GPPUDCLK1_Register_Type);
+   pragma Atomic (GPIO_GPPUDCLK1_Register_Type);
+
+   GPIO_GPPUDCLK1 : GPIO_GPPUDCLK1_Register_Type;
+   for GPIO_GPPUDCLK1'Address use GPIO_GPPUDCLK1_Address;
+
+   -- Internal --
+
    procedure Free is
      new Ada.Unchecked_Deallocation (Pin_Node, Pin_Node_Access);
 
-   procedure Initialize_Pin (Number : GPIO_Number; Mode : GPIO_FSEL_Mode);
+   procedure Reserve_Pin (Number : GPIO_Number);
+
+   procedure Set_Pin_Mode (Number : GPIO_Number; Mode : GPIO_FSEL_Mode);
 
    ------------
    -- Adjust --
@@ -163,6 +222,19 @@ package body GPIO is
       end if;
    end Adjust;
 
+   -----------------
+   -- Reserve_Pin --
+   -----------------
+
+   procedure Reserve_Pin (Number : GPIO_Number) is
+   begin
+      if In_Use (Number) then
+         raise Program_Error with "GPIO" & Number'Img & " is already in use";
+      end if;
+
+      In_Use (Number) := True;
+   end Reserve_Pin;
+
    ------------
    -- Create --
    ------------
@@ -171,12 +243,8 @@ package body GPIO is
      (Number : GPIO_Number)
       return Output_Pin is
    begin
-      if In_Use (Number) then
-         raise Program_Error with "GPIO is already in use";
-      end if;
-
-      In_Use (Number) := True;
-      Initialize_Pin (Number, Output);
+      Reserve_Pin (Number);
+      Set_Pin_Mode (Number, Output);
       GPIO_Output_Clear_0 := Set_Clear_Mask (Number);
 
       return Result : Output_Pin do
@@ -194,14 +262,29 @@ package body GPIO is
      (Number : GPIO_Number)
       return Input_Pin is
    begin
-      if In_Use (Number) then
-         raise Program_Error with "GPIO is already in use";
-      end if;
-
-      In_Use (Number) := True;
-      Initialize_Pin (Number, Input);
+      Reserve_Pin (Number);
+      Set_Pin_Mode (Number, Input);
 
       return Result : Input_Pin do
+         Result.Node := new Pin_Node'
+           (Number => Number, Counter => 1,
+            Is_High => False, GPIO_Pin => Number);
+      end return;
+   end Create;
+
+   ------------
+   -- Create --
+   ------------
+
+   function Create
+     (Number : GPIO_Number;
+      Mode   : GPIO_FSEL_Mode)
+      return Alternate_Pin is
+   begin
+      Reserve_Pin (Number);
+      Set_Pin_Mode (Number, Mode);
+
+      return Result : Alternate_Pin do
          Result.Node := new Pin_Node'
            (Number => Number, Counter => 1,
             Is_High => False, GPIO_Pin => Number);
@@ -218,6 +301,7 @@ package body GPIO is
          Self.Node.Counter := Self.Node.Counter - 1;
          if Self.Node.Counter = 0 then
             In_Use (Self.Node.Number) := False;
+            Set_Pin_Mode (Self.Node.Number, Input);
             Free (Self.Node);
          end if;
       end if;
@@ -289,11 +373,11 @@ package body GPIO is
       end if;
    end Low;
 
-   --------------------
-   -- Initialize_Pin --
-   --------------------
+   ------------------
+   -- Set_Pin_Mode --
+   ------------------
 
-   procedure Initialize_Pin (Number : GPIO_Number; Mode : GPIO_FSEL_Mode) is
+   procedure Set_Pin_Mode (Number : GPIO_Number; Mode : GPIO_FSEL_Mode) is
       Register : GPIO_Select_Register_Type_Access;
    begin
       case Natural (Number / 10) is
@@ -331,7 +415,60 @@ package body GPIO is
          when others =>
             raise Constraint_Error;
       end case;
-   end Initialize_Pin;
+   end Set_Pin_Mode;
+
+   ----------------------
+   -- Set_Pull_Up_Down --
+   ----------------------
+
+   procedure Set_Pull_Up_Down
+     (Self : Input_Pin;
+      Mode : GPIO_Pin_Pull_Up_Down)
+   is
+      Id : constant Integer := Integer (Self.Node.Number);
+   begin
+      GPIO_GPPUD := (PUD => Mode, UNUSED => Unused);
+      delay (0.00001);
+
+      if Self.Node.Number < 32 then
+         GPIO_GPPUDCLK0 (Id) := True;
+      else
+         declare
+            PUDCLK1 : GPIO_GPPUDCLK1_PUDCLK1 := (others => False);
+         begin
+            PUDCLK1 (Id) := True;
+            GPIO_GPPUDCLK1 := (PUDCLK1 => PUDCLK1, UNUSED  => Unused);
+         end;
+      end if;
+      delay (0.00001);
+
+      GPIO_GPPUD := (PUD => Off, UNUSED => Unused);
+      if Self.Node.Number < 32 then
+         GPIO_GPPUDCLK0 (Id) := False;
+      else
+         GPIO_GPPUDCLK1 :=
+           (PUDCLK1 => (others => False),
+            UNUSED  => Unused);
+      end if;
+   end Set_Pull_Up_Down;
+
+   --------------
+   -- Wait_Low --
+   --------------
+
+   function Wait_Low (Self : Input_Pin; Timaout : Duration) return Boolean is
+      T : constant Ada.Calendar.Time := Ada.Calendar.Clock;
+   begin
+      loop
+         if Self.Is_Low then
+            return True;
+         end if;
+
+         if Ada.Calendar.Clock - T > Timaout then
+            return False;
+         end if;
+      end loop;
+   end Wait_Low;
 
    --  int map_pheriferal ()
    function Map_Pheriferal return Interfaces.C.int;
