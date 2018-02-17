@@ -19,8 +19,6 @@ private
 
    type Input_Analog_Sensor is abstract new Analog_Sensor with null record;
 
-   overriding procedure Finalize (Self : in out Input_Analog_Sensor);
-
    function Get (Self : Input_Analog_Sensor) return Long_Float;
 
 end Sensors.Analog.Input;
