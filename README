@@ -1,0 +1,14 @@
+This is an Ada library for Raspberry Pi3 ( bcm2837B0 ).
+It provides support for GPIO and SPI.
+
+The main purpose of creating it - using it in education for teaching
+programming and robotics,  so the main concept is: easy to use and
+preventing incorrect usage as possible.
+
+For using it you should install:
+ - GNU Ada compiller (gnat-4.9)
+ - multi-language-extensible build tool (grpbuild-2014dfsg-1)
+ - integrated development environment for C and Ada (gnat-gps-5.3-dfsg-1)
+in your Raspbian package manager.
+
+For starting: launch gnat-gps and select some project from examples direstory.
