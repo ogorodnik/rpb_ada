@@ -1,7 +1,7 @@
 
--------------------------------------
---  Raspberry Pi3 ( bcm2835 ) GPIO --
--------------------------------------
+---------------------------------------
+--  Raspberry Pi3 ( bcm2837B0 ) GPIO --
+---------------------------------------
 
 private with Ada.Finalization;
 private with System.Storage_Elements;
@@ -56,8 +56,6 @@ package GPIO is
 
 private
    use System, System.Storage_Elements;
-
-   Peripherals_Base_Address : constant Address := To_Address (16#3F00_0000#);
 
    --  GPIO Mode type (FSEL) --
 

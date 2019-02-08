@@ -5,5 +5,12 @@ project Gpio is
    for Library_Name use "gpio";
    for Languages use ("Ada", "C");
 
+   package Builder is
+      for Default_Switches ("Ada") use ("-g");
+   end Builder;
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-lbcm2835");
+   end Linker;
 end Gpio;
 

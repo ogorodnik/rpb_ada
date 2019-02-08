@@ -1,11 +1,14 @@
 
 with Ada.Unchecked_Deallocation;
 with System.Storage_Elements;    use System, System.Storage_Elements;
+with Interfaces.C;               use Interfaces.C;
+
+with Peripherals;
 
 package body GPIO.SPI is
 
    SPI0_Base_Address : constant Address :=
-     Peripherals_Base_Address + 16#20_4000#;
+     Peripherals.Base_Address + 16#20_4000#;
 
    --  SPI0_CS --
 
@@ -157,11 +160,11 @@ package body GPIO.SPI is
       RESERVED at 0 range 26 .. 31;
    end record;
    for SPI0_CS_Register_Type'Size use 32;
-   pragma Volatile (SPI0_CS_Register_Type);
-   pragma Atomic (SPI0_CS_Register_Type);
 
    SPI0_CS : SPI0_CS_Register_Type;
    for SPI0_CS'Address use SPI0_CS_Address;
+   pragma Volatile (SPI0_CS);
+   pragma Atomic (SPI0_CS);
 
    -- SPI0_FIFO --
 
@@ -169,11 +172,11 @@ package body GPIO.SPI is
 
    type SPI0_FIFO_Register_Type is range 0 .. 2**32 - 1;
    for SPI0_FIFO_Register_Type'Size use 32;
-   pragma Volatile (SPI0_FIFO_Register_Type);
-   pragma Atomic (SPI0_FIFO_Register_Type);
 
    SPI0_FIFO : SPI0_FIFO_Register_Type;
    for SPI0_FIFO'Address use SPI0_FIFO_Address;
+   pragma Volatile (SPI0_FIFO);
+   pragma Atomic (SPI0_FIFO);
 
    --  SPI0_CLK --
 
@@ -195,11 +198,11 @@ package body GPIO.SPI is
       RESERVED at 0 range  16 .. 31;
    end record;
    for SPI0_CLK_Register_Type'Size use 32;
-   pragma Volatile (SPI0_CLK_Register_Type);
-   pragma Atomic (SPI0_CLK_Register_Type);
 
    SPI0_CLK : SPI0_CLK_Register_Type;
    for SPI0_CLK'Address use SPI0_CLK_Address;
+   pragma Volatile (SPI0_CLK);
+   pragma Atomic (SPI0_CLK);
 
    -- Internal --
 
@@ -224,6 +227,7 @@ package body GPIO.SPI is
       MOSI  := Create (10, Alt_0);
       SCLK  := Create (11, Alt_0);
 
+      --  Clear all
       SPI0_CS :=
         (CS       => Select_0,
          CPHA_OL  => Middle_Low,
@@ -249,6 +253,9 @@ package body GPIO.SPI is
          DMA_LEN  => Disable,
          LEN_LONG => Byte,
          RESERVED => Reserved);
+
+      --  Clear both TX and RX
+--        SPI0_CS.CLEAR := Both;
 
       SPI0_CS :=
         (CS       => Select_0,
@@ -318,25 +325,21 @@ package body GPIO.SPI is
 
    procedure Set_Master_Mode
      (Self : SPI;
-      Mode : SPI_Master_Mode)
-   is
-      CS : SPI0_CS_Register_Type := SPI0_CS;
+      Mode : SPI_Master_Mode) is
    begin
       case Mode is
          when Mode_A =>
-            CS.CPHA_OL := Middle_Low;
+            SPI0_CS.CPHA_OL := Middle_Low;
 
          when Mode_B =>
-            CS.CPHA_OL := Middle_High;
+            SPI0_CS.CPHA_OL := Middle_High;
 
          when Mode_C =>
-            CS.CPHA_OL := Beginning_Low;
+            SPI0_CS.CPHA_OL := Beginning_Low;
 
          when Mode_D =>
-            CS.CPHA_OL := Beginning_High;
+            SPI0_CS.CPHA_OL := Beginning_High;
       end case;
-
-      SPI0_CS := CS;
    end Set_Master_Mode;
 
    ---------
@@ -344,31 +347,36 @@ package body GPIO.SPI is
    ---------
 
    function Get (Self : SPI) return Unsigned_Integer_32 is
-      CS     : SPI0_CS_Register_Type;
+      Tmp    : SPI0_CS_Register_Type;
       Result : Unsigned_Integer_32;
    begin
 
       --  10.6.1 Polled (BCM2835 ARM Peripherals)
 
-      CS       := SPI0_CS;
-      CS.CLEAR := Both;
-      SPI0_CS  := CS;
-
-      CS      := SPI0_CS;
-      CS.TA   := Active;
-      SPI0_CS := CS;
+      SPI0_CS.CLEAR := Both;
+      SPI0_CS.TA    := Active;
 
       loop
-         CS := SPI0_CS;
-         exit when CS.RXD = Contains_Data;
-         delay (Duration'First);
+         Tmp := SPI0_CS;
+         exit when Tmp.RXD = Contains_Data
+           or else Tmp.TXD = Has_Space;
+
+         delay (0.000001);
       end loop;
+
+      if Tmp.RXD /= Contains_Data then
+         SPI0_FIFO := SPI0_FIFO_Register_Type (16#FF#);
+
+         loop
+            Tmp := SPI0_CS;
+            exit when Tmp.DONE = Complete;
+            delay (0.000001);
+         end loop;
+      end if;
 
       Result := Unsigned_Integer_32 (SPI0_FIFO);
 
-      CS      := SPI0_CS;
-      CS.TA   := Not_Active;
-      SPI0_CS := CS;
+      SPI0_CS.TA := Not_Active;
 
       return Result;
    end Get;
@@ -381,36 +389,28 @@ package body GPIO.SPI is
      (Self : SPI;
       Data : Unsigned_Integer_32)
    is
-      CS : SPI0_CS_Register_Type;
+      Tmp : SPI0_CS_Register_Type;
    begin
 
       --  10.6.1 Polled (BCM2835 ARM Peripherals)
-
-      CS       := SPI0_CS;
-      CS.CLEAR := Both;
-      SPI0_CS  := CS;
-
-      CS      := SPI0_CS;
-      CS.TA   := Active;
-      SPI0_CS := CS;
+      SPI0_CS.CLEAR := Both;
+      SPI0_CS.TA    := Active;
 
       loop
-         CS := SPI0_CS;
-         exit when CS.TXD = Has_Space;
-         delay (Duration'First);
+         Tmp := SPI0_CS;
+         exit when Tmp.TXD = Has_Space;
+         delay (0.00001);
       end loop;
 
       SPI0_FIFO := SPI0_FIFO_Register_Type (Data);
 
       loop
-         CS := SPI0_CS;
-         exit when CS.DONE = Complete;
-         delay (Duration'First);
+         Tmp := SPI0_CS;
+         exit when Tmp.DONE = Complete;
+         delay (0.00001);
       end loop;
 
-      CS      := SPI0_CS;
-      CS.TA   := Not_Active;
-      SPI0_CS := CS;
+      SPI0_CS.TA := Not_Active;
    end Send;
 
    -----------------------
@@ -440,9 +440,7 @@ package body GPIO.SPI is
      (Self : SPI;
       Div  : SPI_Clock_Divider) is
    begin
-      SPI0_CLK :=
-        (CDIV     => Clock_Divider_Values (Div),
-         RESERVED => Reserved);
+      SPI0_CLK.CDIV := Clock_Divider_Values (Div);
    end Set_Clock_Divider;
 
 end GPIO.SPI;

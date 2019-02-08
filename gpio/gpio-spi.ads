@@ -1,9 +1,9 @@
 
-------------------------------------
---  Raspberry Pi3 ( bcm2835 ) SPI --
-------------------------------------
+--------------------------------------
+--  Raspberry Pi3 ( bcm2837B0 ) SPI --
+--------------------------------------
 
---  GPIO Pins 7, 8, 9, 10, 11 are used for SPI
+--  GPIO Pins 7, 8, 9, 10, 11 are used for SPI protocol
 
 package GPIO.SPI is
 
