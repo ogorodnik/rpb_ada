@@ -6,5 +6,9 @@ project Shields is
    for Object_Dir use ".obj";
    for Library_Name use "shields";
 
+   package Builder is
+      for Default_Switches ("ada") use ("-g");
+   end Builder;
+
 end Shields;
 

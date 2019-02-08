@@ -1,4 +1,8 @@
 
+------------------------------------------
+--  Base package for all analog shields --
+------------------------------------------
+
 package Shield.Analog is
 
    type Input_Pin_Number is new Natural;

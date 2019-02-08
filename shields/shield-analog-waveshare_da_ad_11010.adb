@@ -1,7 +1,6 @@
 
 with Ada.Unchecked_Conversion;
-
-with Interfaces;
+with Interfaces;               use Interfaces;
 
 package body Shield.Analog.WAVESHARE_DA_AD_11010 is
 
@@ -9,8 +8,6 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
 
    type Bit is range 0 .. 1;
    for Bit'Size use 1;
-
-   type Register_Offset is new Unsigned_Integer_8 range 2#0000# .. 2#1111#;
 
    -- STATUS : STATUS REGISTER (ADDRESS 00h) --
 
@@ -161,15 +158,6 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
       SPS_5      => 2#00010011#,
       SPS_2_5    => 2#00000011#);
 
-   -- COMMANDS --
-
-   type Command_Type is new Unsigned_Integer_8;
-
-   RDATA  : constant Command_Type := 2#00000001#;
-   WREG   : constant Command_Type := 2#01010000#;
-   SYNC   : constant Command_Type := 2#11111100#;
-   WAKEUP : constant Command_Type := 2#11111111#;
-
    Operations_Delay : constant Duration := 0.00005;
 
    -- Internals --
@@ -180,30 +168,58 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
       DRATE : Data_Rate_Setting);
    --  Initializes AD, sets chip settings
 
-   procedure ISP_Send
-     (Board : DA_AD_Board;
-      Data  : Unsigned_Integer_8);
-   --  Sends via ISP with delay
-
-   procedure Set_Register
-     (Board  : DA_AD_Board;
-      Offset : Register_Offset;
-      Data   : Unsigned_Integer_8);
-   --  Writes Data into a register
-
-   function Write_Register_Command
-     (Offset : Register_Offset)
+   function Command_Write_Register
+     (Register : Register_Offset)
       return Unsigned_Integer_8;
-   --  Creates command for writing a register
+   --  Creates command for writing the register
 
-   procedure Send_Command
-     (Board   : DA_AD_Board;
-      Command : Command_Type);
+   function Command_Read_Register
+     (Register : Register_Offset)
+      return Unsigned_Integer_8;
+   --  Creates command for reading the register
 
-   function Read_Data (Board : DA_AD_Board) return Long_Float;
+   function Command_Register
+     (Command  : Command_Type;
+      Register : Register_Offset)
+      return Unsigned_Integer_8;
 
    function To_Integer_32 is
      new Ada.Unchecked_Conversion (Unsigned_Integer_32, Interfaces.Integer_32);
+
+   ---------------------------
+   -- Command_Read_Register --
+   ---------------------------
+
+   function Command_Read_Register
+     (Register : Register_Offset)
+      return Unsigned_Integer_8 is
+   begin
+      return Command_Register (RREG, Register);
+   end Command_Read_Register;
+
+   ----------------------------
+   -- Command_Write_Register --
+   ----------------------------
+
+   function Command_Write_Register
+     (Register : Register_Offset)
+      return Unsigned_Integer_8 is
+   begin
+      return Command_Register (WREG, Register);
+   end Command_Write_Register;
+
+   ----------------------
+   -- Command_Register --
+   ----------------------
+
+   function Command_Register
+     (Command  : Command_Type;
+      Register : Register_Offset)
+      return Unsigned_Integer_8 is
+   begin
+      return Unsigned_Integer_8
+        (Unsigned_8 (Command) or Unsigned_8 (Register));
+   end Command_Register;
 
    ------------
    -- Create --
@@ -211,9 +227,9 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
 
    function Create (Mode : Board_Mode) return DA_AD_Board
    is
-      SPI    : GPIO.SPI.SPI    := GPIO.SPI.Create;
-      SPICS  : GPIO.Output_Pin := GPIO.Create (22);
-      DRDY   : GPIO.Input_Pin  := GPIO.Create (17);
+      SPI    : GPIO.SPI.SPI;
+      SPICS  : GPIO.Output_Pin;
+      DRDY   : GPIO.Input_Pin;
       Result : DA_AD_Board;
    begin
       if Mode = DA then
@@ -223,7 +239,11 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
       SPI := GPIO.SPI.Create;
       SPI.Set_Master_Mode (Mode_C);
       SPI.Set_Clock_Divider (F_390_kHz);
+
+      SPICS := GPIO.Create (22);
       SPICS.High;
+
+      DRDY := GPIO.Create (17);
       DRDY.Set_Pull_Up_Down (GPIO.Pull_Up);
 
       Result.Node := new DA_AD_Board_Node'
@@ -236,6 +256,29 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
 
       return Result;
    end Create;
+
+   ------------------
+   -- Get_Register --
+   ------------------
+
+   function Get_Register
+     (Self     : DA_AD_Board;
+      Register : Register_Offset)
+      return Interfaces.Unsigned_8
+   is
+      Result : Interfaces.Unsigned_8;
+   begin
+      DA_AD_Board_Node_Access (Self.Node).SPICS.Low;
+      Self.ISP_Send (Command_Read_Register (Register));
+      Self.ISP_Send (0);
+      delay (0.00001);
+
+      Result := Interfaces.Unsigned_8
+        (DA_AD_Board_Node_Access (Self.Node).SPI.Get);
+      DA_AD_Board_Node_Access (Self.Node).SPICS.High;
+
+      return Result;
+   end Get_Register;
 
    ----------------
    -- Initialize --
@@ -257,48 +300,62 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
 
       --  1st Command Byte: 0101 rrrr where rrrr is the address to the first
       --  register to be written.
-      ISP_Send (Board, Write_Register_Command (STATUS_Register_Offset));
+      Board.ISP_Send (Command_Write_Register (STATUS_Register_Offset));
 
       --  2nd Command Byte: 0000 nnnn where nnnn is the number of bytes
       --  to be writtent -1
-      ISP_Send (Board, 3);
+      Board.ISP_Send (3);
 
       --  Data Byte(s): data to be written to the registers
-      ISP_Send (Board,
-                To_Unsigned_Integer_8
-                  (Status_Register_Type'
-                     (DRDY  => 0,
-                      BUFEN => Disabled,
-                      ACAL  => Enabled,
-                      ORDER => Most_Significant_Bit_First,
-                      ID    => 0)));
+      Board.ISP_Send
+        (To_Unsigned_Integer_8
+           (Status_Register_Type'
+                (DRDY  => 0,
+                 BUFEN => Disabled,
+                 ACAL  => Enabled,
+                 ORDER => Most_Significant_Bit_First,
+                 ID    => 0)));
 
-      ISP_Send (Board,
-                To_Unsigned_Integer_8
-                  (Input_Multiplexer_Control_Register_Type'
-                     (NSEL => AIN_COM, PSEL => AIN_0)));
+      Board.ISP_Send
+        (To_Unsigned_Integer_8
+           (Input_Multiplexer_Control_Register_Type'
+                (NSEL => AIN_COM, PSEL => AIN_0)));
 
-      ISP_Send (Board,
-                To_Unsigned_Integer_8
-                  (AD_Control_Register_Type'
-                     (PGA => PGA, SDSC => Off, CLK => Off, RESERVED => 0)));
+      Board.ISP_Send
+        (To_Unsigned_Integer_8
+           (AD_Control_Register_Type'
+                (PGA => PGA, SDSC => Off, CLK => Off, RESERVED => 0)));
 
-      ISP_Send (Board, Data_Rate_Setting_Values (DRATE));
+      Board.ISP_Send (Data_Rate_Setting_Values (DRATE));
 
       DA_AD_Board_Node_Access (Board.Node).SPICS.High;
       delay (Operations_Delay);
    end Initialize;
+
+   -------------
+   -- Chip_Id --
+   -------------
+
+   function Chip_Id (Self : DA_AD_Board) return Integer is
+   begin
+      if not DA_AD_Board_Node_Access (Self.Node).DRDY.Wait_Low (0.5) then
+         raise Program_Error with "Can't get Chip_Id, DDRY is not ready";
+      end if;
+
+      return Integer
+        (Shift_Right (Self.Get_Register (STATUS_Register_Offset), 4));
+   end Chip_Id;
 
    --------------
    -- ISP_Send --
    --------------
 
    procedure ISP_Send
-     (Board : DA_AD_Board;
-      Data  : Unsigned_Integer_8) is
+     (Self : DA_AD_Board;
+      Data : Unsigned_Integer_8) is
    begin
       delay (0.000002);
-      DA_AD_Board_Node_Access (Board.Node).SPI.Send
+      DA_AD_Board_Node_Access (Self.Node).SPI.Send
         (Unsigned_Integer_32 (Data));
    end ISP_Send;
 
@@ -306,26 +363,28 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
    -- Read_Data --
    ---------------
 
-   function Read_Data (Board : DA_AD_Board) return Long_Float is
-      Data : Unsigned_Integer_32 := 0;
-   begin
-      DA_AD_Board_Node_Access (Board.Node).SPICS.Low;
+   function Read_Data (Self : DA_AD_Board) return Long_Float is
+      Node : constant DA_AD_Board_Node_Access :=
+        DA_AD_Board_Node_Access (Self.Node);
 
-      Send_Command (Board, RDATA);
+      Data : Unsigned_32 := 0;
+   begin
+      Node.SPICS.Low;
+
+      Self.ISP_Send (Unsigned_Integer_8 (RDATA));
       delay (0.00001);
 
-      Data := DA_AD_Board_Node_Access (Board.Node).SPI.Get *
-        65_536 and 16#00FF0000#;
-      Data := Data or DA_AD_Board_Node_Access (Board.Node).SPI.Get * 256;
-      Data := Data or DA_AD_Board_Node_Access (Board.Node).SPI.Get;
+      Data := Shift_Left (Unsigned_32 (Node.SPI.Get), 16) and 16#00FF0000#;
+      Data := Data or Shift_Left (Unsigned_32 (Node.SPI.Get), 8);
+      Data := Data or Unsigned_32 (Node.SPI.Get);
 
-      DA_AD_Board_Node_Access (Board.Node).SPICS.High;
+      Node.SPICS.High;
 
       if (Data and 16#800000#) /= 0 then
-         Data := Data or 16#FF000000#;
+         return Long_Float (Data or 16#FF000000#) * 100.0 / 167.0;
+      else
+         return Long_Float (Data) * 100.0 / 167.0;
       end if;
-
-      return Long_Float (To_Integer_32 (Data)) * 100.0 / 167.0;
    end Read_Data;
 
    ------------------
@@ -333,12 +392,12 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
    ------------------
 
    procedure Send_Command
-     (Board   : DA_AD_Board;
+     (Self    : DA_AD_Board;
       Command : Command_Type) is
    begin
-      DA_AD_Board_Node_Access (Board.Node).SPICS.Low;
-      ISP_Send (Board, Unsigned_Integer_8 (Command));
-      DA_AD_Board_Node_Access (Board.Node).SPICS.High;
+      DA_AD_Board_Node_Access (Self.Node).SPICS.Low;
+      Self.ISP_Send (Unsigned_Integer_8 (Command));
+      DA_AD_Board_Node_Access (Self.Node).SPICS.High;
    end Send_Command;
 
    ------------------
@@ -346,15 +405,15 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
    ------------------
 
    procedure Set_Register
-     (Board  : DA_AD_Board;
-      Offset : Register_Offset;
-      Data   : Unsigned_Integer_8) is
+     (Self     : DA_AD_Board;
+      Register : Register_Offset;
+      Data     : Unsigned_Integer_8) is
    begin
-      DA_AD_Board_Node_Access (Board.Node).SPICS.Low;
-      ISP_Send (Board, Write_Register_Command (Offset));
-      ISP_Send (Board, 0);
-      ISP_Send (Board, Data);
-      DA_AD_Board_Node_Access (Board.Node).SPICS.High;
+      DA_AD_Board_Node_Access (Self.Node).SPICS.Low;
+      Self.ISP_Send (Command_Write_Register (Register));
+      Self.ISP_Send (0);
+      Self.ISP_Send (Data);
+      DA_AD_Board_Node_Access (Self.Node).SPICS.High;
    end Set_Register;
 
    -----------
@@ -375,33 +434,21 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
       end loop;
 
       --  Select chanel PSEL = AIN0
-      Set_Register
-        (Self,
-         MUX_Register_Offset,
+      Self.Set_Register
+        (MUX_Register_Offset,
          To_Unsigned_Integer_8
            (Input_Multiplexer_Control_Register_Type'
                 (NSEL => AIN_COM,
                  PSEL => Chanel (AD_Input_Number (Pin)))));
-      delay (Operations_Delay);
+      delay (0.000005);
 
-      Send_Command (Self, SYNC);
-      delay (Operations_Delay);
+      Self.Send_Command (SYNC);
+      delay (0.000005);
 
-      Send_Command (Self, WAKEUP);
-      delay (Operations_Delay);
+      Self.Send_Command (WAKEUP);
+      delay (0.000025);
 
-      return Read_Data (Self);
+      return Self.Read_Data;
    end Value;
-
-   ----------------------------
-   -- Write_Register_Command --
-   ----------------------------
-
-   function Write_Register_Command
-     (Offset : Register_Offset)
-      return Unsigned_Integer_8 is
-   begin
-      return Unsigned_Integer_8 (WREG) + Unsigned_Integer_8 (Offset);
-   end Write_Register_Command;
 
 end Shield.Analog.WAVESHARE_DA_AD_11010;

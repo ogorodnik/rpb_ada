@@ -1,4 +1,9 @@
 
+---------------------------------------------------------------------
+-- Base package for all shields which can be attached to Raspberry --
+-- via GPIO, SPI, I2C etc.                                         --
+---------------------------------------------------------------------
+
 private with Ada.Finalization;
 
 package Shield is
