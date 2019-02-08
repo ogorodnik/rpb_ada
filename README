@@ -11,4 +11,4 @@ For using it you should install:
  - integrated development environment for C and Ada (gnat-gps-5.3-dfsg-1)
 in your Raspbian package manager.
 
-For starting: launch gnat-gps and select some project from examples direstory.
+For starting: launch gnat-gps and select some project from the examples direstory.
