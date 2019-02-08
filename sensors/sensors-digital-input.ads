@@ -1,4 +1,8 @@
 
+--------------------------------------------
+-- Base package for digital input sensors --
+--------------------------------------------
+
 package Sensors.Digital.Input is
 
    type Input_Sensor is abstract new Digital_Sensor with private;

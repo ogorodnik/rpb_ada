@@ -1,6 +1,8 @@
 
--- Tested with:
---    Digital Buzzer For Arduino SKU:DFR0032
+-----------------------------------------------
+-- Tested with:                              --
+--    Digital Buzzer For Arduino SKU:DFR0032 --
+-----------------------------------------------
 
 package Sensors.Digital.Output.Buzzer is
 

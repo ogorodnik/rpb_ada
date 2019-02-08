@@ -1,4 +1,8 @@
 
+----------------------------------------------------------------------
+--  Base package for all sensors which can be attached to Raspberry --
+----------------------------------------------------------------------
+
 with Ada.Finalization;
 
 package Sensors is

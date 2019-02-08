@@ -1,6 +1,8 @@
 
---  Tested with:
---    DFRobot Digital Push Button SKU:DFR0029
+------------------------------------------------
+--  Tested with:                              --
+--    DFRobot Digital Push Button SKU:DFR0029 --
+------------------------------------------------
 
 package Sensors.Digital.Input.Button is
 

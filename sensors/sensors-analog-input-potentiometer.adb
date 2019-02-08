@@ -12,7 +12,10 @@ package body Sensors.Analog.Input.Potentiometer is
    begin
       return Result : Potentiometer do
          Result.Node := new Potentiometer_Node'
-           (Pin => Pin, Board => Board, others => <>);
+           (Counter => 1,
+            Pin     => Pin,
+            Board   => Board,
+            others => <>);
       end return;
    end Create;
 

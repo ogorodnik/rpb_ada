@@ -1,6 +1,8 @@
 
---  Tested with:
---    DFRobot Digital Magnetic Sensor V2
+-------------------------------------------
+--  Tested with:                         --
+--    DFRobot Digital Magnetic Sensor V2 --
+-------------------------------------------
 
 package Sensors.Digital.Input.Magnetic is
 

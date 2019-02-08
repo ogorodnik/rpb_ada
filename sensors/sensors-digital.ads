@@ -1,4 +1,8 @@
 
+--------------------------------------
+-- Base package for digital sensors --
+--------------------------------------
+
 with GPIO;
 
 package Sensors.Digital is

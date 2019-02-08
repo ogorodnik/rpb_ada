@@ -1,4 +1,8 @@
 
+---------------------------------------------
+-- Base package for digital output sensors --
+---------------------------------------------
+
 package Sensors.Digital.Output is
 
    type Output_Sensor is abstract new Digital_Sensor with private;

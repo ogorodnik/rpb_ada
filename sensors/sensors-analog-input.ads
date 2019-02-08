@@ -1,4 +1,8 @@
 
+--------------------------------------------
+--  Base package for analog input sensors --
+--------------------------------------------
+
 package Sensors.Analog.Input is
 
    type Level_Type is range 0 .. 100;

@@ -1,6 +1,8 @@
 
---  Tested with
---    Digital (Green) LED Light Module SKU:DFR0021-G
+--------------------------------------------------------
+--  Tested with                                       --
+--    Digital (Green) LED Light Module SKU:DFR0021-G  --
+--------------------------------------------------------
 
 package Sensors.Digital.Output.Led is
 
