@@ -12,7 +12,7 @@ package Sensors is
 private
 
    type Sensor_Node is tagged record
-      Counter : Natural := 0;
+      Counter : Natural := 1;
    end record;
    type Sensor_Node_Access is access all Sensor_Node'Class;
 
