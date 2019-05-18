@@ -1,0 +1,17 @@
+project Hexapod is
+
+   for Source_Dirs use ("source");
+   for Object_Dir use ".objs";
+
+   package Compiler is
+      for Switches ("Ada") use ("-g", "-gnata", "-gnatwae", "-gnaty", "-gnatW8");
+   end Compiler;
+
+   package Binder is
+      for Default_Switches ("ada") use ("-E", "-W8");
+   end Binder;
+
+   for Main use ("hexapod-run.adb");
+
+end Hexapod;
+
