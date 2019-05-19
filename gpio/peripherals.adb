@@ -15,7 +15,10 @@ package body Peripherals is
    end Base_Address;
 
 begin
-   Base := Map_All;
+   if Base = Null_Address then
+      Base := Map_All;
+   end if;
+
    if Base = Null_Address then
       raise Program_Error with "Can't map memory";
    end if;

@@ -1,0 +1,14 @@
+with "../shields/shields.gpr";
+
+project Motors is
+
+   for Source_Dirs use ("./**");
+   for Object_Dir use ".obj";
+   for Library_Name use "motors";
+
+   package Builder is
+      for Default_Switches ("ada") use ("-g");
+   end Builder;
+
+end Motors;
+

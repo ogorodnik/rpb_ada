@@ -23,6 +23,8 @@
 --  Single-Ended Inputs
 --------------------------------------------------------
 
+with GPIO.Types;  use GPIO.Types;
+
 private with Ada.Finalization;
 private with Interfaces;
 private with GPIO.SPI;
@@ -57,11 +59,11 @@ private
    type DA_AD_Board is new Analog_Shield with null record;
 
    type Register_Offset is
-     new GPIO.SPI.Unsigned_Integer_8 range 2#0000# .. 2#1111#;
+     new Unsigned_Integer_8 range 2#0000# .. 2#1111#;
 
    -- COMMANDS --
 
-   type Command_Type is new GPIO.SPI.Unsigned_Integer_8;
+   type Command_Type is new Unsigned_Integer_8;
 
    RDATA  : constant Command_Type := 2#00000001#;
    RREG   : constant Command_Type := 2#00010000#;
@@ -78,7 +80,7 @@ private
    procedure Set_Register
      (Self     : DA_AD_Board;
       Register : Register_Offset;
-      Data     : GPIO.SPI.Unsigned_Integer_8);
+      Data     : Unsigned_Integer_8);
    --  Write to register
 
    procedure Send_Command
@@ -87,7 +89,7 @@ private
 
    procedure ISP_Send
      (Self : DA_AD_Board;
-      Data : GPIO.SPI.Unsigned_Integer_8);
+      Data : Unsigned_Integer_8);
    --  Sends via ISP with delay
 
    function Read_Data (Self : DA_AD_Board) return Long_Float;

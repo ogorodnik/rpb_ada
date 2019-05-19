@@ -2,12 +2,11 @@
 with Ada.Unchecked_Conversion;
 with Interfaces;               use Interfaces;
 
+with GPIO.Types;               use GPIO.Types;
+
 package body Shield.Analog.WAVESHARE_DA_AD_11010 is
 
    use GPIO.SPI;
-
-   type Bit is range 0 .. 1;
-   for Bit'Size use 1;
 
    -- STATUS : STATUS REGISTER (ADDRESS 00h) --
 
@@ -50,7 +49,7 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
    for Status_Register_Type'Size use 8;
 
    function To_Unsigned_Integer_8 is new Ada.Unchecked_Conversion
-     (Status_Register_Type, GPIO.SPI.Unsigned_Integer_8);
+     (Status_Register_Type, Unsigned_Integer_8);
 
    -- MUX : Input Multiplexer Control Register (Address 01h) --
 
@@ -81,7 +80,7 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
    for Input_Multiplexer_Control_Register_Type'Size use 8;
 
    function To_Unsigned_Integer_8 is new Ada.Unchecked_Conversion
-       (Input_Multiplexer_Control_Register_Type, GPIO.SPI.Unsigned_Integer_8);
+       (Input_Multiplexer_Control_Register_Type, Unsigned_Integer_8);
 
    -- ADCON: A/D Control Register (Address 02h) --
 
@@ -130,7 +129,7 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
    for AD_Control_Register_Type'Size use 8;
 
    function To_Unsigned_Integer_8 is new Ada.Unchecked_Conversion
-     (AD_Control_Register_Type, GPIO.SPI.Unsigned_Integer_8);
+     (AD_Control_Register_Type, Unsigned_Integer_8);
 
    -- DRATE: A/D Data Rate (Address 03h) --
 
@@ -140,7 +139,7 @@ package body Shield.Analog.WAVESHARE_DA_AD_11010 is
       SPS_2_5);
 
    Data_Rate_Setting_Values : constant
-     array (Data_Rate_Setting) of GPIO.SPI.Unsigned_Integer_8 :=
+     array (Data_Rate_Setting) of Unsigned_Integer_8 :=
      (SPS_30_000 => 2#11110000#,
       SPS_15_000 => 2#11100000#,
       SPS_7_500  => 2#11010000#,

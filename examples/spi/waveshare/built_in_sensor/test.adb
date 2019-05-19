@@ -13,14 +13,14 @@ with Sensors.Analog.Input.Potentiometer;
 use  Sensors.Analog.Input.Potentiometer;
 
 procedure Test is
-   Board  : aliased DA_AD_Board;
+   Board  : DA_AD_Board;
    Sensor : Potentiometer;
 
 begin
    Board  := Create (Mode => AD);
    Ada.Text_IO.Put_Line ("WAVESHARE Chip ID:" & Board.Chip_Id'Img);
 
-   Sensor := Create (Board'Unchecked_Access, 0);
+   Sensor := Create (Board, 0);
    for I in 1 .. 5 loop
       Ada.Text_IO.Put_Line
         ("Builtin potentiometer on chanel 0:" & Sensor.Value'Img);

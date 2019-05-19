@@ -20,6 +20,8 @@ private
       Node : Sensor_Node_Access;
    end record;
 
+   procedure Free (Self : in out Sensor) is null;
+
    overriding procedure Adjust   (Self : in out Sensor);
    overriding procedure Finalize (Self : in out Sensor);
 

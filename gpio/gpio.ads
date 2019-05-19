@@ -104,6 +104,9 @@ private
    --  Initialize and return alternative pin. May raise Program_Error
    --  if corresponding pin is already in use.
 
+   Empty_Alternate_Pin : constant Alternate_Pin :=
+     Alternate_Pin'(Ada.Finalization.Controlled with Node => null);
+
    type Bit is range 0 .. 1;
    for Bit'Size use 1;
 

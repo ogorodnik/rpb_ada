@@ -209,6 +209,8 @@ package body GPIO.SPI is
    procedure Free is
      new Ada.Unchecked_Deallocation (SPI_Node, SPI_Node_Access);
 
+   SPI_Created : Boolean := False;
+
    ------------
    -- Create --
    ------------
@@ -221,6 +223,10 @@ package body GPIO.SPI is
       SCLK  : Alternate_Pin;
 
    begin
+      if SPI_Created then
+         raise Program_Error with "SPI is already created";
+      end if;
+
       CE1_N := Create (7,  Alt_0);
       CE0_N := Create (8,  Alt_0);
       MISO  := Create (9,  Alt_0);
@@ -255,8 +261,6 @@ package body GPIO.SPI is
          RESERVED => Reserved);
 
       --  Clear both TX and RX
---        SPI0_CS.CLEAR := Both;
-
       SPI0_CS :=
         (CS       => Select_0,
          CPHA_OL  => Middle_Low,
@@ -284,6 +288,7 @@ package body GPIO.SPI is
          RESERVED => Reserved);
 
       return Result : SPI do
+         SPI_Created := True;
          Result.Node := new SPI_Node'
            (Counter => 1,
             CE1_N   => CE1_N,
@@ -314,6 +319,7 @@ package body GPIO.SPI is
       if Self.Node /= null then
          Self.Node.Counter := Self.Node.Counter - 1;
          if Self.Node.Counter = 0 then
+            SPI_Created := False;
             Free (Self.Node);
          end if;
       end if;
@@ -393,6 +399,7 @@ package body GPIO.SPI is
    begin
 
       --  10.6.1 Polled (BCM2835 ARM Peripherals)
+
       SPI0_CS.CLEAR := Both;
       SPI0_CS.TA    := Active;
 

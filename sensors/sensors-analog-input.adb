@@ -1,5 +1,21 @@
 
+with Ada.Unchecked_Deallocation;
+
 package body Sensors.Analog.Input is
+
+   procedure Free is
+     new Ada.Unchecked_Deallocation
+       (Shield.Analog.Analog_Shield'Class, Analog_Shield_Access);
+
+   ----------
+   -- Free --
+   ----------
+
+   overriding procedure Free (Self : in out Input_Analog_Sensor) is
+   begin
+      Free (Input_Analog_Sensor_Node_Access (Self.Node).Board);
+      Free (Analog_Sensor (Self));
+   end Free;
 
    ---------
    -- Get --

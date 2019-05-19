@@ -5,13 +5,9 @@
 
 --  GPIO Pins 7, 8, 9, 10, 11 are used for SPI protocol
 
+with GPIO.Types;  use GPIO.Types;
+
 package GPIO.SPI is
-
-   type Unsigned_Integer_8 is range 0 .. 2**8 - 1;
-   for Unsigned_Integer_8'Size use 8;
-
-   type Unsigned_Integer_32 is mod 2**32;
-   for Unsigned_Integer_32'Size use 32;
 
    type SPI is tagged private;
 
