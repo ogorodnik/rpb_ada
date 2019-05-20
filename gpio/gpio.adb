@@ -43,7 +43,6 @@ package body GPIO is
       RESERVED at 0 range 30 .. 31;
    end record;
    for GPIO_Select_Register_Type'Size use 32;
-   pragma Volatile (GPIO_Select_Register_Type);
 
    -- GPFSELn addresses --
 
@@ -260,9 +259,6 @@ package body GPIO is
       30 =>  2#1000000000000000000000000000000#,
       31 => 2#10000000000000000000000000000000#);
 
-   type GPIO_Select_Register_Type_Access is
-     access all GPIO_Select_Register_Type;
-
    procedure Free is
      new Ada.Unchecked_Deallocation (Pin_Node, Pin_Node_Access);
 
@@ -401,8 +397,9 @@ package body GPIO is
    -------------
 
    function Is_High (Self : Input_Pin) return Boolean is
+      Register : GPIO_Level_Register_Type := GPIO_Pin_Level_0;
    begin
-      return GPIO_Pin_Level_0 (Integer (Self.Node.Number));
+      return Register (Integer (Self.Node.Number));
    end Is_High;
 
    ------------
@@ -444,15 +441,16 @@ package body GPIO is
    ------------------
 
    procedure Set_Pin_Mode (Number : GPIO_Number; Mode : GPIO_FSEL_Mode) is
-      Register : GPIO_Select_Register_Type_Access;
+      Num      : constant Natural := Natural (Number / 10);
+      Register : GPIO_Select_Register_Type;
    begin
-      case Natural (Number / 10) is
+      case Num is
          when 0 =>
-            Register := GPIO_Select_0'Access;
+            Register := GPIO_Select_0;
          when 1 =>
-            Register := GPIO_Select_1'Access;
+            Register := GPIO_Select_1;
          when 2 =>
-            Register := GPIO_Select_2'Access;
+            Register := GPIO_Select_2;
          when others =>
             raise Constraint_Error;
       end case;
@@ -478,6 +476,17 @@ package body GPIO is
             Register.FSEL8 := Mode;
          when 9 =>
             Register.FSEL9 := Mode;
+         when others =>
+            raise Constraint_Error;
+      end case;
+
+      case Num is
+         when 0 =>
+            GPIO_Select_0 := Register;
+         when 1 =>
+            GPIO_Select_1 := Register;
+         when 2 =>
+            GPIO_Select_2 := Register;
          when others =>
             raise Constraint_Error;
       end case;

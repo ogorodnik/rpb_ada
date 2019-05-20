@@ -331,21 +331,25 @@ package body GPIO.SPI is
 
    procedure Set_Master_Mode
      (Self : SPI;
-      Mode : SPI_Master_Mode) is
+      Mode : SPI_Master_Mode)
+   is
+      Register : SPI0_CS_Register_Type := SPI0_CS;
    begin
       case Mode is
          when Mode_A =>
-            SPI0_CS.CPHA_OL := Middle_Low;
+            Register.CPHA_OL := Middle_Low;
 
          when Mode_B =>
-            SPI0_CS.CPHA_OL := Middle_High;
+            Register.CPHA_OL := Middle_High;
 
          when Mode_C =>
-            SPI0_CS.CPHA_OL := Beginning_Low;
+            Register.CPHA_OL := Beginning_Low;
 
          when Mode_D =>
-            SPI0_CS.CPHA_OL := Beginning_High;
+            Register.CPHA_OL := Beginning_High;
       end case;
+
+      SPI0_CS := Register;
    end Set_Master_Mode;
 
    ---------
@@ -353,14 +357,20 @@ package body GPIO.SPI is
    ---------
 
    function Get (Self : SPI) return Unsigned_Integer_32 is
-      Tmp    : SPI0_CS_Register_Type;
-      Result : Unsigned_Integer_32;
+      Tmp      : SPI0_CS_Register_Type;
+      Result   : Unsigned_Integer_32;
+      Register : SPI0_CS_Register_Type;
    begin
 
       --  10.6.1 Polled (BCM2835 ARM Peripherals)
 
-      SPI0_CS.CLEAR := Both;
-      SPI0_CS.TA    := Active;
+      Register       := SPI0_CS;
+      Register.CLEAR := Both;
+      SPI0_CS        := Register;
+
+      Register    := SPI0_CS;
+      Register.TA := Active;
+      SPI0_CS     := Register;
 
       loop
          Tmp := SPI0_CS;
@@ -382,7 +392,9 @@ package body GPIO.SPI is
 
       Result := Unsigned_Integer_32 (SPI0_FIFO);
 
-      SPI0_CS.TA := Not_Active;
+      Register    := SPI0_CS;
+      Register.TA := Not_Active;
+      SPI0_CS     := Register;
 
       return Result;
    end Get;
@@ -395,13 +407,19 @@ package body GPIO.SPI is
      (Self : SPI;
       Data : Unsigned_Integer_32)
    is
-      Tmp : SPI0_CS_Register_Type;
+      Tmp      : SPI0_CS_Register_Type;
+      Register : SPI0_CS_Register_Type;
    begin
 
       --  10.6.1 Polled (BCM2835 ARM Peripherals)
 
-      SPI0_CS.CLEAR := Both;
-      SPI0_CS.TA    := Active;
+      Register       := SPI0_CS;
+      Register.CLEAR := Both;
+      SPI0_CS        := Register;
+
+      Register    := SPI0_CS;
+      Register.TA := Active;
+      SPI0_CS     := Register;
 
       loop
          Tmp := SPI0_CS;
@@ -417,7 +435,9 @@ package body GPIO.SPI is
          delay (0.00001);
       end loop;
 
-      SPI0_CS.TA := Not_Active;
+      Register    := SPI0_CS;
+      Register.TA := Not_Active;
+      SPI0_CS     := Register;
    end Send;
 
    -----------------------
@@ -445,9 +465,12 @@ package body GPIO.SPI is
 
    procedure Set_Clock_Divider
      (Self : SPI;
-      Div  : SPI_Clock_Divider) is
+      Div  : SPI_Clock_Divider)
+   is
+      Register : SPI0_CLK_Register_Type := SPI0_CLK;
    begin
-      SPI0_CLK.CDIV := Clock_Divider_Values (Div);
+      Register.CDIV := Clock_Divider_Values (Div);
+      SPI0_CLK := Register;
    end Set_Clock_Divider;
 
 end GPIO.SPI;
