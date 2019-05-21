@@ -14,7 +14,7 @@ package body Hexapod.Legs is
 
    not overriding procedure Assign_Program
      (Self    : in out Leg;
-      Program : Program_Item_Array;
+      Program : Hexapod.Programs.Program_Item_Array;
       Repeat  : Positive) is
    begin
       Self.Scheduler.Remove_Listener (Self'Unchecked_Access);
@@ -37,6 +37,7 @@ package body Hexapod.Legs is
 
    not overriding procedure Next_Program_Item (Self : aliased in out Leg) is
       use type Ada.Calendar.Time;
+      Angles : Segment_Angles;
    begin
       if Self.Item_Index = Self.Program.Last_Index then
          Self.Item_Index := 0;
@@ -63,6 +64,9 @@ package body Hexapod.Legs is
            (Self'Unchecked_Access,
             Self.Current_Item.Started + 0.020);  --  One frame duration
       else
+         Self.Compute_Angles (Self.Current_Item.Item.Target, Angles);
+         Ada.Text_IO.Put_Line
+           (Angles.S1'Img & " " & Angles.S2'Img & " " & Angles.S3'Img & "@");
          Self.Scheduler.Add_Listener
            (Self'Unchecked_Access,
             Self.Current_Item.Finished);
@@ -124,7 +128,7 @@ package body Hexapod.Legs is
 
    not overriding procedure Compute_Angles
      (Self     : Leg;
-      Position : Hexapod.Legs.Position;
+      Position : Hexapod.Position;
       Angles   : out Segment_Angles)
    is
       use Elementary_Functions;
