@@ -10,8 +10,8 @@ use GPIO.I2C;
 with Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT;
 use  Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT;
 
-with Motors.Servo.SG90;
-use Motors.Servo.SG90;
+with Motors.Servo.Angle.SG90;
+use Motors.Servo.Angle.SG90;
 
 procedure Test is
    --  Create I2C transport
