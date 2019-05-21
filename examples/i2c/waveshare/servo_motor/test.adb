@@ -18,11 +18,11 @@ procedure Test is
    Protocol : I2C_BSC1 := Create;
 
    --  Create driver for extension shield connected to raspberry,
-   --  with givven address and I2C as transport protocol
+   --  with given address and I2C as transport protocol
    Driver   : Servo_Driver_HAT := Create
      (Protocol, Address'(others => False));
 
-   --  Create a srvo motor on Driver connected to first (0) pins
+   --  Create a servo motor on Driver connected to first (0) pins
    Servo    : SG90_Motor := Create (Driver, 0);
 
 begin

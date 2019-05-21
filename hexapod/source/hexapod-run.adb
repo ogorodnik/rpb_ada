@@ -1,3 +1,7 @@
+with GPIO.I2C;
+with Motors.Servo.Angle.MG995;
+with Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT;
+
 with Hexapod.Legs;
 with Hexapod.Programs;
 with Hexapod.Schedulers;
@@ -10,15 +14,24 @@ procedure Hexapod.Run is
    use type Ada.Calendar.Time;
    package Angle_IO is new Ada.Text_IO.Float_IO (Hexapod.Legs.Angle);
 
+   package W renames Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT;
+
+   Transport : constant GPIO.I2C.I2C_BSC1 := GPIO.I2C.Create;
+   Address   : constant W.Address := (others => False);
+   Driver    : constant W.Servo_Driver_HAT := W.Create (Transport, Address);
    Scheduler : aliased Hexapod.Schedulers.Scheduler;
    Time      : Ada.Calendar.Time := Ada.Calendar.Clock;
    Leg       : Hexapod.Legs.Leg;
-   Angles    : Hexapod.Legs.Segment_Angles;
+   Angles    : Hexapod.Legs.Joint_Angles;
 begin
    Leg.Configure
      (Segments => (30, 85, 120),
       Origin => (0, 0, 0),
       Rotated => 0.0,
+      Motors =>
+        (Motors.Servo.Angle.MG995.Create (Driver, 0),
+         Motors.Servo.Angle.MG995.Create (Driver, 1),
+         Motors.Servo.Angle.MG995.Create (Driver, 2)),
       Scheduler => Scheduler'Unchecked_Access);
 
    Leg.Compute_Angles

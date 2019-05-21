@@ -37,7 +37,6 @@ package body Hexapod.Legs is
 
    not overriding procedure Next_Program_Item (Self : aliased in out Leg) is
       use type Ada.Calendar.Time;
-      Angles : Segment_Angles;
    begin
       if Self.Item_Index = Self.Program.Last_Index then
          Self.Item_Index := 0;
@@ -64,9 +63,7 @@ package body Hexapod.Legs is
            (Self'Unchecked_Access,
             Self.Current_Item.Started + 0.020);  --  One frame duration
       else
-         Self.Compute_Angles (Self.Current_Item.Item.Target, Angles);
-         Ada.Text_IO.Put_Line
-           (Angles.S1'Img & " " & Angles.S2'Img & " " & Angles.S3'Img & "@");
+         Self.Rotate_Joints (Self.Current_Item.Item.Target);
          Self.Scheduler.Add_Listener
            (Self'Unchecked_Access,
             Self.Current_Item.Finished);
@@ -102,7 +99,6 @@ package body Hexapod.Legs is
       Origin : constant Position := Self.Current_Item.Origin;
       Target : constant Position := Self.Current_Item.Item.Target;
       Next   : Position;
-      Angles : Segment_Angles;
    begin
       if Passed >= Tick then
          Self.Next_Program_Item;
@@ -112,10 +108,7 @@ package body Hexapod.Legs is
             Y => Interpolate (Origin.Y, Target.Y, Passed, Tick),
             Z => Interpolate (Origin.Z, Target.Z, Passed, Tick));
 
-         Self.Compute_Angles (Next, Angles);
-
-         Ada.Text_IO.Put_Line
-           (Angles.S1'Img & " " & Angles.S2'Img & " " & Angles.S3'Img);
+         Self.Rotate_Joints (Next);
 
          Self.Scheduler.Add_Listener
            (Self'Unchecked_Access, Time + 0.020);
@@ -129,7 +122,7 @@ package body Hexapod.Legs is
    not overriding procedure Compute_Angles
      (Self     : Leg;
       Position : Hexapod.Position;
-      Angles   : out Segment_Angles)
+      Angles   : out Joint_Angles)
    is
       use Elementary_Functions;
       --  Two equations system:
@@ -168,12 +161,53 @@ package body Hexapod.Legs is
       Segments  : Hexapod.Legs.Segments;
       Origin    : Position;
       Rotated   : Angle;
+      Motors    : Motor_Array;
       Scheduler : not null Hexapod.Schedulers.Scheduler_Access) is
    begin
       Self.Segments := Segments;
       Self.Origin := Origin;
       Self.Rotated := Rotated;
+      Self.Joints := Motors;
       Self.Scheduler := Scheduler;
    end Configure;
+
+   -------------------
+   -- Rotate_Joints --
+   -------------------
+
+   not overriding procedure Rotate_Joints
+     (Self   : in out Leg;
+      Target : Position)
+   is
+      procedure Rotate (Index : Positive; Value : Angle);
+
+      ------------
+      -- Rotate --
+      ------------
+
+      procedure Rotate (Index : Positive; Value : Angle) is
+         use type Motors.Servo.Angle.Angle_Type;
+
+         Angle : constant Motors.Servo.Angle.Angle_Type :=
+           Motors.Servo.Angle.Angle_Type (Value * 180.0 / π);
+      begin
+         if Self.Joint_Angles (Index) /= Angle then
+            Self.Joints (Index).Set_Angle (Angle);
+            Self.Joint_Angles (Index) := Angle;
+         end if;
+
+         Ada.Text_IO.Put (Angle'Img);
+      end Rotate;
+
+      Angles : Joint_Angles;
+
+   begin
+      Self.Compute_Angles (Target, Angles);
+      Rotate (1, Angles.S1);
+      Rotate (2, Angles.S2);
+      Rotate (3, Angles.S3);
+
+      Ada.Text_IO.New_Line;
+   end Rotate_Joints;
 
 end Hexapod.Legs;

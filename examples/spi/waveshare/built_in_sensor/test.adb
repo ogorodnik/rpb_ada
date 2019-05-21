@@ -1,5 +1,5 @@
 
--- This example shows how read analog data as digital from
+-- This example shows how to read analog data as digital from
 -- WAVESHARE Raspberry Pi High-Precision AD/DA Expansion Board,
 -- from buitin potentiomener.
 
