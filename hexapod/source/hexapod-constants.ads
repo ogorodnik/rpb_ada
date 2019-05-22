@@ -42,6 +42,8 @@ package Hexapod.Constants is
    Legs_PWM_Ranges : constant array (Leg_Number) of Leg_PWM_Ranges :=
      (1 =>
         (1 => (Min => 1250, Max => 2600),
+         --  1250 is limitation of rotation by hardware,
+         --  use 700 if Legs_Angles_Restrictions is in use
          2 => (Min => 700,  Max => 2400),
          3 => (Min => 650,  Max => 2400)),
 
