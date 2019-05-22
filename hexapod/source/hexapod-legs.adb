@@ -167,7 +167,10 @@ package body Hexapod.Legs is
       Self.Segments := Segments;
       Self.Origin := Origin;
       Self.Rotated := Rotated;
-      Self.Joints := Motors;
+      Self.Joints :=
+        (Motors (Motors'First),
+         Motors (Motors'First + 1),
+         Motors (Motors'First + 2));
       Self.Scheduler := Scheduler;
    end Configure;
 

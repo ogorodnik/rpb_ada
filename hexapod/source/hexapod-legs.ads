@@ -31,7 +31,8 @@ package Hexapod.Legs is
 
    type Angle is digits 5 range -π .. π;
 
-   type Motor_Array is array (1 .. 3) of Motors.Servo.Angle.MG995.MG995_Motor;
+   type Motor_Array is array (Positive range <>) of
+     Motors.Servo.Angle.MG995.MG995_Motor;
 
    not overriding procedure Configure
      (Self         : in out Leg;
@@ -79,7 +80,7 @@ private
    end record;
 
    type Motor_Angles is
-     array (Motor_Array'Range) of Motors.Servo.Angle.Angle_Type;
+     array (1 .. 3) of Motors.Servo.Angle.Angle_Type;
 
    type Leg is limited new Hexapod.Schedulers.Listener with record
       Segments     : Hexapod.Legs.Segments;
@@ -89,7 +90,7 @@ private
       Item_Index   : Natural := 0;
       Repeat       : Natural := 0;
       Current_Item : Current_Program_Item;
-      Joints       : Motor_Array;
+      Joints       : Motor_Array (1 .. 3);
       Joint_Angles : Motor_Angles := (others => 360);
       Scheduler    : Hexapod.Schedulers.Scheduler_Access;
    end record;
