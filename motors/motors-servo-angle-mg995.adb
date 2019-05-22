@@ -19,8 +19,8 @@ package body Motors.Servo.Angle.MG995 is
            (Counter   => 1,
             Driver    => new Servo_Motor_Driver'Class' (Driver),
             Chanel    => Chanel,
-            Min       => 0,
-            Max       => 4096,
+            Min       => 700,
+            Max       => 2400,
             Max_Angle => 180);
 
          if Driver in Servo_Driver_HAT'Class then
