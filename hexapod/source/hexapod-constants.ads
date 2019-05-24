@@ -43,6 +43,24 @@ package Hexapod.Constants is
 
    type Leg_Angles is array (Leg_Motor_Number) of Motor_Angles;
 
+   -- Motors orientation --
+   --  X axsis: from rear to front
+   --  Y axsis: from left to right
+   --  Z axsis: from bottom to top
+
+   --  Angles of motors orientation when they set to its (motor) 0
+   --  Angles are calculated from left to right.
+   --  For example Y axsis has 90 in relation with X axsis
+
+   type Motor_Orientation is record
+      X : Angle_Type;
+      Y : Angle_Type;
+      Z : Angle_Type;
+   end record;
+
+   type Leg_Motors_Orientation is
+     array (Leg_Motor_Number) of Motor_Orientation;
+
    ---------------
    -- Constants --
    ---------------
@@ -100,5 +118,32 @@ package Hexapod.Constants is
         (1 => (Min => 60, Max => 180),
          2 => (Min => 0, Max => 180),
          3 => (Min => 0, Max => 180)));
+
+   Legs_Motors_Orientation : constant
+     array (Leg_Number) of Leg_Motors_Orientation :=
+     (1 =>
+        (1 => (X => 260, Y => 170, Z => 0),
+         2 => (X => 0, Y => 0, Z => 0),
+         3 => (X => 0, Y => 0, Z => 0)),
+      2 =>
+        (1 => (X => 0, Y => 0, Z => 0),
+         2 => (X => 0, Y => 0, Z => 0),
+         3 => (X => 0, Y => 0, Z => 0)),
+      3 =>
+        (1 => (X => 0, Y => 0, Z => 0),
+         2 => (X => 0, Y => 0, Z => 0),
+         3 => (X => 0, Y => 0, Z => 0)),
+      4 =>
+        (1 => (X => 0, Y => 0, Z => 0),
+         2 => (X => 0, Y => 0, Z => 0),
+         3 => (X => 0, Y => 0, Z => 0)),
+      5 =>
+        (1 => (X => 0, Y => 0, Z => 0),
+         2 => (X => 0, Y => 0, Z => 0),
+         3 => (X => 0, Y => 0, Z => 0)),
+      6 =>
+        (1 => (X => 0, Y => 0, Z => 0),
+         2 => (X => 0, Y => 0, Z => 0),
+         3 => (X => 0, Y => 0, Z => 0)));
 
 end Hexapod.Constants;
