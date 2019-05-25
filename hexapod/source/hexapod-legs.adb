@@ -128,27 +128,33 @@ package body Hexapod.Legs is
       --  Two equations system:
       --  S3*cos(E) = H + S2*cos(D)
       --  S3*sin(E) = L + S2*sin(D)
-      --  where C = E + D
+      --  where C = E + (-D) in [0 .. π]
+      --  On the picture D is clockwise, so negative
 
       Y  : constant Real := Real (Position.Y) - Real (Self.Origin.Y);
       X  : constant Real := Real (Position.X) - Real (Self.Origin.X);
-      A  : constant Real := Arctan (Y => X, X => Y);
-      --  From now work with projection to (Z, Y) plane. First scale S1..3, L
-      S1 : constant Real := Real (Self.Segments.S1) * Cos (A);
-      S2 : constant Real := Real (Self.Segments.S2) * Cos (A);
-      S3 : constant Real := Real (Self.Segments.S3) * Cos (A);
-      L  : constant Real := Y * Cos (A) - S1;
+      A  : constant Real range -π .. π := Arctan (Y => Y, X => X);
+      --  From now work with projection to (Z, Y) plane. First scale S1..S3, L
+      S1 : constant Real := Real (Self.Segments.S1) * abs Sin (A);
+      S2 : constant Real := Real (Self.Segments.S2) * abs Sin (A);
+      S3 : constant Real := Real (Self.Segments.S3) * abs Sin (A);
+      L  : constant Real := abs (Y * Sin (A)) - S1;
       H  : constant Real := -(Real (Position.Z) - Real (Self.Origin.Z));
       V1 : constant Real := S3 ** 2 - H ** 2 - L ** 2 - S2 ** 2;
-      V2 : constant Real := 2.0 * L * S2;
+      V2 : constant Real := 2.0 * L * S2;  --  > 0
       V3 : constant Real := 2.0 * H * S2;
-      V4 : constant Real := Sqrt (V2 ** 2 + V3 ** 2);
+      V4 : constant Real := Sqrt (V2 ** 2 + V3 ** 2);  -- > 0
+
+      --------------------  [-π/2 .. π/2]    - [0 .. π/2]
       D  : constant Real := Arcsin (V1 / V4) - Arccos (V2 / V4);
+      --------------------  [-π .. π/2]
+
+      --------------------  [-π/2 .. π/2]
       E  : constant Real := Arcsin ((L + S2 * Sin (D)) / S3);
    begin
       Angles :=
-        (S1 => Angle (A) - Self.Rotated + π / 2.0,
-         S2 => Angle (-D),      --  On the picture D is clockwise, so negative
+        (S1 => Angle (A) - Self.Rotated,
+         S2 => Angle (-D),
          S3 => Angle (E - D));
    end Compute_Angles;
 
