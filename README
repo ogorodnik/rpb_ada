@@ -5,6 +5,10 @@ The main purpose of creating it - using it in education for teaching
 programming and robotics, so the main concept is: easy to use and
 preventing incorrect usage as possible.
 
+Also it has support for following extension shields:
+ - WAVESHARE High-Precision AD/DA Expansion Board (SKU: 11010)
+ - WAVESHARE Servo Driver HAT (SKU: 15275)
+
 For using it you should install:
  - GNU Ada compiller (gnat-4.9)
  - multi-language-extensible build tool (grpbuild-2014dfsg-1)
