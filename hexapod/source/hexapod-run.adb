@@ -19,7 +19,7 @@ procedure Hexapod.Run is
    Transport : constant GPIO.I2C.I2C_BSC1 := GPIO.I2C.Create;
    Address   : constant W.Address := (others => False);
    Driver    : constant W.Servo_Driver_HAT := W.Create
-     (I2C => Transport, Addr => Address, MHz_Frequency => 50);
+     (I2C => Transport, Addr => Address, Hz_Frequency => 50);
    Scheduler : aliased Hexapod.Schedulers.Scheduler;
    Time      : Ada.Calendar.Time := Ada.Calendar.Clock;
    Leg       : Hexapod.Legs.Leg;

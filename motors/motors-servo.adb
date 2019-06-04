@@ -1,20 +1,26 @@
 
 package body Motors.Servo is
 
-   procedure Init (Self : Servo_Motor'Class) is
+   ---------------------------
+   -- Check_Driver_Settings --
+   ---------------------------
+
+   procedure Check_Driver_Settings (Self : Servo_Motor'Class) is
    begin
-      if Servo_Motor_Driver_Access (Self.Node.Driver).Get_Frequency /=
-        Servo_Motor_Node_Access (Self.Node).MHz
+      if Servo_Motor_Driver_Access (Self.Node.Driver).Get_Frequency not in
+        Servo_Motor_Node_Access (Self.Node).MHz_Min ..
+        Servo_Motor_Node_Access (Self.Node).MHz_Max
       then
          raise Program_Error
-           with "The motor needs" &
-           Servo_Motor_Node_Access (Self.Node).MHz'Img &
-           " frequency but driver has" &
+           with "The motor needs frequency in range" &
+           Servo_Motor_Node_Access (Self.Node).MHz_Min'Img &
+           " .." & Servo_Motor_Node_Access (Self.Node).MHz_Max'Img &
+           " Hz but driver has" &
            Servo_Motor_Driver_Access (Self.Node.Driver).Get_Frequency'Img;
       end if;
 
-      Do_Init (Self);
-   end Init;
+      Do_Check_Driver_Settings (Self);
+   end Check_Driver_Settings;
 
    -------------
    -- Get_Min --

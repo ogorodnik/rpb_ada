@@ -3,7 +3,7 @@
 --        MG995 motor         --
 --  Rotates in range 0 .. 180 --
 --------------------------------
---  Needs 50 MHz frequency on driver
+--  Needs 50 Hz frequency on driver
 
 package Motors.Servo.Angle.MG995 is
 

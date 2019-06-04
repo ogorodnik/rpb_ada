@@ -22,9 +22,10 @@ package body Motors.Servo.Angle.MG995 is
             Min       => 700,
             Max       => 2400,
             Max_Angle => 180,
-            MHz       => 50);
+            MHz_Min   => 50,
+            MHz_Max   => 50);
 
-         Init (Result);
+         Check_Driver_Settings (Result);
 
          if Driver in Servo_Driver_HAT'Class then
             Servo_Motor_Node_Access (Result.Node).Min := 400;

@@ -148,16 +148,16 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
 
    procedure Set_PWM_Frequency
      (Self : Servo_Driver_HAT;
-      MHz  : Frequency);
+      Hz   : Frequency);
 
    ------------
    -- Create --
    ------------
 
    function Create
-     (I2C           : GPIO.I2C.I2C_BSC1;
-      Addr          : Address;
-      MHz_Frequency : Frequency)
+     (I2C          : GPIO.I2C.I2C_BSC1;
+      Addr         : Address;
+      Hz_Frequency : Frequency)
       return Servo_Driver_HAT
    is
       A      : Slave_Address_7Bit := 16#20#; -- default 16#40# without RW bit
@@ -184,7 +184,7 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
         (Counter => 1,
          I2C     => I2C,
          Addr    => A,
-         MHz     => MHz_Frequency);
+         Hz      => Hz_Frequency);
 
       -- reset
       Dummy := I2C.Send
@@ -193,7 +193,7 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
          Unsigned_Integer_8_Array'
            (Mode1, Convert (Mode1_Register_Type'(others => 0))));
 
-      Set_PWM_Frequency (Result, MHz_Frequency);
+      Set_PWM_Frequency (Result, Hz_Frequency);
 
       return Result;
    end Create;
@@ -206,7 +206,7 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
      (Self : Servo_Driver_HAT)
       return Frequency is
    begin
-      return Servo_Driver_HAT_Node_Access (Self.Node).MHz;
+      return Servo_Driver_HAT_Node_Access (Self.Node).Hz;
    end Get_Frequency;
 
    -----------------------
@@ -215,7 +215,7 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
 
    procedure Set_PWM_Frequency
      (Self : Servo_Driver_HAT;
-      MHz  : Frequency)
+      Hz   : Frequency)
    is
       V       : Unsigned_Integer_8;
       Node    : Servo_Driver_HAT_Node_Access :=
@@ -225,7 +225,7 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
       Newmode : Mode1_Register_Type;
 
    begin
-      V := Unsigned_Integer_8 (25000000.0 / 4096.0 / Float (MHz) - 0.5);
+      V := Unsigned_Integer_8 (25000000.0 / 4096.0 / Float (Hz) - 0.5);
 
       Dummy := Node.I2C.Send
         (Node.Addr, 626, Unsigned_Integer_8_Array'(1 => Mode1));

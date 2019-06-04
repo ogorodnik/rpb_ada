@@ -13,7 +13,7 @@ package Shield.Motor_Drivers.Servo is
    function Get_Frequency
      (Self : Servo_Motor_Driver)
       return Frequency is abstract;
-   --  Returns driver frequency in Mhz
+   --  Returns driver's frequency in Hz
 
    procedure Rotate_Servo
      (Self   : Servo_Motor_Driver;

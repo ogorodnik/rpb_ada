@@ -18,10 +18,11 @@ package Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
    type Address is array (Addresses_Pins) of Boolean;
 
    function Create
-     (I2C           : GPIO.I2C.I2C_BSC1;
-      Addr          : Address;
-      MHz_Frequency : Frequency)
+     (I2C          : GPIO.I2C.I2C_BSC1;
+      Addr         : Address;
+      Hz_Frequency : Frequency)
       return Servo_Driver_HAT;
+   --  Hz_Frequency is an output frequency for motors
 
    overriding function Get_Frequency
      (Self : Servo_Driver_HAT)
@@ -38,7 +39,7 @@ private
    type Servo_Driver_HAT_Node is new Root_Shield_Node with record
       I2C  : GPIO.I2C.I2C_BSC1;
       Addr : GPIO.I2C.Slave_Address_7Bit;
-      MHz  : Frequency;
+      Hz   : Frequency;
    end record;
    type Servo_Driver_HAT_Node_Access is access all Servo_Driver_HAT_Node;
 

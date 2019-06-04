@@ -8,15 +8,16 @@ package body Motors.Servo.Rotating.DS3115MG is
    begin
       return Result : DS3115MG_Motor do
          Result.Node := new Rotating_Servo_Motor_Node'
-           (Counter  => 1,
-            Driver   => new Servo_Motor_Driver'Class' (Driver),
-            Chanel   => Chanel,
-            Min      => 1000,
-            Mid      => 1500,
-            Max      => 2000,
-            MHz      => 50);
+           (Counter => 1,
+            Driver  => new Servo_Motor_Driver'Class' (Driver),
+            Chanel  => Chanel,
+            Min     => 1000,
+            Mid     => 1500,
+            Max     => 2000,
+            MHz_Min => 50,
+            MHz_Max => 50);
 
-         Init (Result);
+         Check_Driver_Settings (Result);
       end return;
    end Create;
 
