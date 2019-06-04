@@ -6,8 +6,14 @@
 package Shield.Motor_Drivers.Servo is
 
    type PWM_Value is new Natural;
+   type Frequency is new Natural;
 
    type Servo_Motor_Driver is abstract new Motor_Driver with private;
+
+   function Get_Frequency
+     (Self : Servo_Motor_Driver)
+      return Frequency is abstract;
+   --  Returns driver frequency in Mhz
 
    procedure Rotate_Servo
      (Self   : Servo_Motor_Driver;

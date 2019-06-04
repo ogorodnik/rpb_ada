@@ -21,7 +21,10 @@ package body Motors.Servo.Angle.MG995 is
             Chanel    => Chanel,
             Min       => 700,
             Max       => 2400,
-            Max_Angle => 180);
+            Max_Angle => 180,
+            MHz       => 50);
+
+         Init (Result);
 
          if Driver in Servo_Driver_HAT'Class then
             Servo_Motor_Node_Access (Result.Node).Min := 400;

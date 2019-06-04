@@ -148,15 +148,16 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
 
    procedure Set_PWM_Frequency
      (Self : Servo_Driver_HAT;
-      MHz  : Positive);
+      MHz  : Frequency);
 
    ------------
    -- Create --
    ------------
 
    function Create
-     (I2C  : GPIO.I2C.I2C_BSC1;
-      Addr : Address)
+     (I2C           : GPIO.I2C.I2C_BSC1;
+      Addr          : Address;
+      MHz_Frequency : Frequency)
       return Servo_Driver_HAT
    is
       A      : Slave_Address_7Bit := 16#20#; -- default 16#40# without RW bit
@@ -182,7 +183,8 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
       Result.Node := new Servo_Driver_HAT_Node'
         (Counter => 1,
          I2C     => I2C,
-         Addr    => A);
+         Addr    => A,
+         MHz     => MHz_Frequency);
 
       -- reset
       Dummy := I2C.Send
@@ -191,10 +193,21 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
          Unsigned_Integer_8_Array'
            (Mode1, Convert (Mode1_Register_Type'(others => 0))));
 
-      Set_PWM_Frequency (Result, 50);
+      Set_PWM_Frequency (Result, MHz_Frequency);
 
       return Result;
    end Create;
+
+   -------------------
+   -- Get_Frequency --
+   -------------------
+
+   overriding function Get_Frequency
+     (Self : Servo_Driver_HAT)
+      return Frequency is
+   begin
+      return Servo_Driver_HAT_Node_Access (Self.Node).MHz;
+   end Get_Frequency;
 
    -----------------------
    -- Set_PWM_Frequency --
@@ -202,7 +215,7 @@ package body Shield.Motor_Drivers.Servo.WAVESHARE_Servo_Driver_HAT is
 
    procedure Set_PWM_Frequency
      (Self : Servo_Driver_HAT;
-      MHz  : Positive)
+      MHz  : Frequency)
    is
       V       : Unsigned_Integer_8;
       Node    : Servo_Driver_HAT_Node_Access :=

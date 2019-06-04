@@ -1,6 +1,21 @@
 
 package body Motors.Servo is
 
+   procedure Init (Self : Servo_Motor'Class) is
+   begin
+      if Servo_Motor_Driver_Access (Self.Node.Driver).Get_Frequency /=
+        Servo_Motor_Node_Access (Self.Node).MHz
+      then
+         raise Program_Error
+           with "The motor needs" &
+           Servo_Motor_Node_Access (Self.Node).MHz'Img &
+           " frequency but driver has" &
+           Servo_Motor_Driver_Access (Self.Node.Driver).Get_Frequency'Img;
+      end if;
+
+      Do_Init (Self);
+   end Init;
+
    -------------
    -- Get_Min --
    -------------

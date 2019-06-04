@@ -2,6 +2,7 @@
 ---------------------
 --  DS3115MG motor --
 ---------------------
+--  Needs 50 MHz frequency on driver
 
 package Motors.Servo.Rotating.DS3115MG is
 

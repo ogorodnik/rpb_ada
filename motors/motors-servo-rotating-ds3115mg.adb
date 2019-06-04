@@ -13,7 +13,10 @@ package body Motors.Servo.Rotating.DS3115MG is
             Chanel   => Chanel,
             Min      => 1000,
             Mid      => 1500,
-            Max      => 2000);
+            Max      => 2000,
+            MHz      => 50);
+
+         Init (Result);
       end return;
    end Create;
 

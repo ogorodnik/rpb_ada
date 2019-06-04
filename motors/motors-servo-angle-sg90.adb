@@ -25,7 +25,10 @@ package body Motors.Servo.Angle.SG90 is
             Chanel    => Chanel,
             Min       => 0,
             Max       => 4096,
-            Max_Angle => 180);
+            Max_Angle => 180,
+            MHz       => 50);
+
+         Init (Result);
 
          if Driver in Servo_Driver_HAT'Class then
             Servo_Motor_Node_Access (Result.Node).Min := 650;

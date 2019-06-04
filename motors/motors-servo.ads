@@ -23,9 +23,13 @@ private
       Chanel : Shield.Motor_Drivers.Motor_Chanel_Number;
       Min    : PWM_Value;
       Max    : PWM_Value;
+      MHz    : Frequency;
    end record;
    type Servo_Motor_Node_Access is access all Servo_Motor_Node;
 
    type Servo_Motor is abstract new Motor with null record;
+
+   procedure Init (Self : Servo_Motor'Class);
+   procedure Do_Init (Self : Servo_Motor) is null;
 
 end Motors.Servo;
