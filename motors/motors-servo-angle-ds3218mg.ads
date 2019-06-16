@@ -7,7 +7,7 @@
 
 package Motors.Servo.Angle.DS3218MG is
 
-   type DS3218MG_Angle is (180, 270);
+   type DS3218MG_Angle is (Angle_180, Angle_270);
 
    type DS3218MG_Motor is new Angle_Servo_Motor with private;
 
@@ -19,6 +19,6 @@ package Motors.Servo.Angle.DS3218MG is
 
 private
 
-   type MG995_Motor is new Angle_Servo_Motor with null record;
+   type DS3218MG_Motor is new Angle_Servo_Motor with null record;
 
 end Motors.Servo.Angle.DS3218MG;

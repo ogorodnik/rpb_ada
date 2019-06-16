@@ -22,7 +22,7 @@ package body Motors.Servo.Angle.DS3218MG is
             Chanel    => Chanel,
             Min       => 500,
             Max       => 2500,
-            Max_Angle => (if Angle = 180 then 180 else 270),
+            Max_Angle => (if Angle = Angle_180 then 180 else 270),
             MHz_Min   => 50,
             MHz_Max   => 50);
 
