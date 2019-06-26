@@ -1,0 +1,11 @@
+language: generic
+
+dist: xenial
+
+before_install:
+  - sudo apt-get update -q
+  - sudo apt-get install -q -y gnat-5-arm-linux-gnueabi gprbuild libgnat-5
+
+script:
+  - gprbuild --target=arm-linux-gnueabi -P hexapod/hexapod.gpr -p
+
