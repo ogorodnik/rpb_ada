@@ -7,5 +7,5 @@ before_install:
   - sudo apt-get install -q -y gnat-5-arm-linux-gnueabi gprbuild libgnat-5
 
 script:
-  - gprbuild --target=arm-linux-gnueabi -P hexapod/hexapod.gpr -p
+  - gprbuild --target=arm-linux-gnueabi -P all_projects.gpr -p
 

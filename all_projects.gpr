@@ -1,0 +1,14 @@
+aggregate project All_Projects is
+
+   for Project_Files use
+     ("gpio/gpio.gpr",
+      "shields/shields.gpr",
+      "sensors/sensors.gpr",
+      "motors/motors.gpr",
+      "hexapod/hexapod.gpr",
+      "examples/gpio/led/test.gpr",
+      "examples/i2c/waveshare/servo_motor/test.gpr",
+      "examples/spi/waveshare/built_in_sensor/test.gpr",
+      "examples/st/test.gpr");
+
+end All_Projects;

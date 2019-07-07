@@ -20,7 +20,7 @@ procedure Test is
    --  Create driver for extension shield connected to raspberry,
    --  with given address and I2C as transport protocol
    Driver   : Servo_Driver_HAT := Create
-     (Protocol, Address'(others => False));
+     (Protocol, Address'(others => False), 50);
 
    --  Create a servo motor on Driver connected to first (0) pins
    Servo    : SG90_Motor := Create (Driver, 0);
